@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Readings Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Montserrat;
+
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color:rgba(0, 0, 0, 0.7);
+            color: #fff;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            color: #fff;
+            padding: 20px;
+      font-size: 40px;
+      font-weight: 600;
+      text-align: center;
+        }
+
+        .dashboard {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .refresh-btn {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #7f8c8d;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #edf2f7;
+        }
+
+        .date-cell, .time-cell {
+            white-space: nowrap;
+        }
+
+        .last-updated {
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .sensor-value {
+            font-weight: 500;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .page-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        footer {
+          background: rgba(0, 0, 0, 0.7);
+          color:  rgb(227, 241, 227);
+          text-align: center;
+          padding: 10px;
+          width: 100%;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          font-size: 15px;
+      }
+      body{height: 100%;}
+      .main-content {
+        flex: 1; /* Pushes footer to bottom */
+    }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sensor Readings Dashboard</h1>
+        </header>
+
+        <div class="dashboard">
+            <div class="filters">
+                <span>Filter by date:</span>
+                <input type="date" class="filter-input" id="start-date">
+                <span>to</span>
+                <input type="date" class="filter-input" id="end-date">
+                <button class="refresh-btn" onclick="fetchDataFromDatabase()">Apply Filters</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('all-data')">All Readings</div>
+                <div class="tab" onclick="showTab('sensor1')">Sensor 1</div>
+                <div class="tab" onclick="showTab('sensor2')">Sensor 2</div>
+            </div>
+
+            <!-- All Data Tab -->
+            <div id="all-data" class="tab-content active">
+                <div class="table-header">
+                    <h3 class="table-title">Combined Sensor Readings</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Sensor 1</th>
+                                <th>Sensor 2</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-data-table">
+                            <!-- This will be populated with data from the database -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="all-pagination"></div>
+            </div>
+
+            <!-- Sensor 1 Tab -->
+            <div id="sensor1" class="tab-content">
+                <div class="table-header">
+                    <h3 class="table-title">Sensor 1 Readings</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensor1-table">
+                            <!-- This will be populated with data from the database -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="sensor1-pagination"></div>
+            </div>
+
+            <!-- Sensor 2 Tab -->
+            <div id="sensor2" class="tab-content">
+                <div class="table-header">
+                    <h3 class="table-title">Sensor 2 Readings</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensor2-table">
+                            <!-- This will be populated with data from the database -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="sensor2-pagination"></div>
+            </div>
+
+            <p class="last-updated">Last updated: <span id="last-updated-time"></span></p>
+        </div>
+    </div>
+    <footer>
+        <p style="margin: 0;">| © Copyrights Reserved |</p>
+        <small><a href="mailto:rafatelsheikh72@gmail.com"> rafatelsheikh72@gmail.com</a></small> <br>
+
+        <a href="/" style="color:  rgb(233, 244, 247);">Home</a> |
+        <a href="/depth" style="color:  rgb(233, 244, 247);">Sensor Recent Readings</a>
+
+      </footer>
+
+    <script>
+          // Format date and time functions
+          function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toTimeString().split(' ')[0];
+        }
+
+        // Show appropriate tab
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate the tab button
+            document.querySelectorAll('.tab').forEach(tab => {
+                if (tab.textContent.toLowerCase().includes(tabId.toLowerCase())) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        // Fetch data from backend API
+        function fetchDataFromDatabase() {
+            // Show loading state
+            document.getElementById('all-data-table').innerHTML = '<tr><td colspan="5" class="loading">Loading data...</td></tr>';
+            document.getElementById('sensor1-table').innerHTML = '<tr><td colspan="4" class="loading">Loading data...</td></tr>';
+            document.getElementById('sensor2-table').innerHTML = '<tr><td colspan="4" class="loading">Loading data...</td></tr>';
+
+            // Get date filter values
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            // Build query parameters
+            let queryParams = '';
+            if (startDate) {
+                queryParams += `start_date=${startDate}`;
+            }
+            if (endDate) {
+                queryParams += queryParams ? `&end_date=${endDate}` : `end_date=${endDate}`;
+            }
+
+            // API endpoint URL (replace with your actual endpoint)
+            const apiUrl = `/api/readings${queryParams ? '?' + queryParams : ''}`;
+
+            // Fetch data from API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    populateTables(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('error-container').style.display = 'block';
+
+                    // Clear loading indicators
+                    document.getElementById('all-data-table').innerHTML = '<tr><td colspan="5">Failed to load data</td></tr>';
+                    document.getElementById('sensor1-table').innerHTML = '<tr><td colspan="4">Failed to load data</td></tr>';
+                    document.getElementById('sensor2-table').innerHTML = '<tr><td colspan="4">Failed to load data</td></tr>';
+                });
+        }
+
+        // Populate tables with data from API
+        function populateTables(data) {
+            // All data table
+            const allDataTable = document.getElementById('all-data-table');
+            allDataTable.innerHTML = '';
+
+            // Sensor 1 table
+            const sensor1Table = document.getElementById('sensor1-table');
+            sensor1Table.innerHTML = '';
+
+            // Sensor 2 table
+            const sensor2Table = document.getElementById('sensor2-table');
+            sensor2Table.innerHTML = '';
+
+            // Check if data is empty
+            if (!data || data.length === 0) {
+                allDataTable.innerHTML = '<tr><td colspan="5" class="loading">No data found for the selected period</td></tr>';
+                sensor1Table.innerHTML = '<tr><td colspan="4" class="loading">No data found for the selected period</td></tr>';
+                sensor2Table.innerHTML = '<tr><td colspan="4" class="loading">No data found for the selected period</td></tr>';
+                return;
+            }
+
+            // Populate all tables with data
+            data.forEach(item => {
+                // Add to all data table
+                const allRow = document.createElement('tr');
+                allRow.innerHTML = `
+
+                    <td class="date-cell">${formatDate(item.dateCreated)}</td>
+                    <td class="time-cell">${formatTime(item.dateCreated)}</td>
+                    <td class="sensor-value">${item.sensor1}</td>
+                    <td class="sensor-value">${item.sensor2}</td>
+                `;
+                allDataTable.appendChild(allRow);
+
+                // Add to sensor 1 table
+                const s1Row = document.createElement('tr');
+                s1Row.innerHTML = `
+
+                    <td class="date-cell">${formatDate(item.dateCreated)}</td>
+                    <td class="time-cell">${formatTime(item.dateCreated)}</td>
+                    <td class="sensor-value">${item.sensor1}</td>
+                `;
+                sensor1Table.appendChild(s1Row);
+
+                // Add to sensor 2 table
+                const s2Row = document.createElement('tr');
+                s2Row.innerHTML = `
+
+                    <td class="date-cell">${formatDate(item.dateCreated)}</td>
+                    <td class="time-cell">${formatTime(item.dateCreated)}</td>
+                    <td class="sensor-value">${item.sensor2}</td>
+                `;
+                sensor2Table.appendChild(s2Row);
+            });
+
+            // Update last updated time
+            const now = new Date();
+            document.getElementById('last-updated-time').textContent = now.toLocaleString();
+        }
+
+        // Set default date filter values (last 7 days) and load initial data
+        window.onload = function() {
+            const today = new Date();
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+
+            document.getElementById('end-date').valueAsDate = today;
+            document.getElementById('start-date').valueAsDate = lastWeek;
+
+            // Initial data load
+            fetchDataFromDatabase();
+        }
+    </script>
+</body>
+</html>

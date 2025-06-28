@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lake Water Level Monitoring System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #f0f7fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      font-family:Montserrat;
+
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content {
+      padding: 40px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 45px;
+      border-style: solid;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+      width: 500px;
+      min-height: 200px;
+
+    }
+
+    .search-card {
+      background: #fff;
+      padding: 2px;
+      border-radius: 15px;
+      border-style: solid;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+      width: 205px;
+      min-height: 50px;
+
+    }
+    .search-card h4 {
+      margin-bottom: 2px;
+      color: #126994e9;
+      text-shadow: 1px 1px 3px black;
+      font-weight: 600;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .card h1 {
+      margin-bottom: 10px;
+      color: #126994e9;
+      text-shadow: 1px 1px 3px black;
+      font-weight: 600;
+    }
+
+    #depth-value {
+      font-size: 38px;
+      font-weight: bold;
+      color:rgba(18, 105, 148, 0.914);
+    }
+
+    .switch-container {
+      display: flex ;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height:0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #ccc;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .background img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+      footer {
+          background: rgba(0, 0, 0, 0.7);
+          color:  rgb(227, 241, 227);
+          text-align: center;
+          padding: 10px;
+          width: 100%;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          font-size: 15px;
+      }
+      body{height: 100%;}
+      .main-content {
+        flex: 1; /* Pushes footer to bottom */
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 600px) {
+        .container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #s1, #s2 {
+            width: 90%;
+            padding-left: 0;
+            padding-top: 20px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    Lake Depth Monitoring System
+  </div>
+
+  <div class="background">
+    <img src="static/www.gif" alt="Water Background" />
+  </div>
+
+
+  </div>
+
+  <div class="content">
+    <div class="switch-container">
+    <div class="card">
+      <h1>Sensor Status</h1>
+      <div class="depth-value" id="sensor-label">Sensor 1</div>
+
+        <label class="switch">
+          <input type="checkbox" id="sensor-toggle" onchange="toggleSensor()">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Depth</h1>
+      <p id="depth-value">{{ sensor1 }} cm</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>| © Copyrights Reserved |</p>
+  <small>
+    <a href="mailto:rafatelsheikh72@gmail.com">rafatelsheikh72@gmail.com</a>
+  </small>
+  <br>
+  <a href="/" style="color:  rgb(233, 244, 247);">Home</a> |
+  <a href="/readings" style="color:  rgb(233, 244, 247);">Database Readings</a>
+</footer>
+
+
+
+  <script>
+
+
+
+      function toggleSensor() {
+    const toggle = document.getElementById('sensor-toggle');
+    const sensorLabel = document.getElementById('sensor-label');
+    const depthValue = document.getElementById('depth-value');
+
+    if (toggle.checked) {
+      // Sensor 2
+      sensorLabel.textContent = 'Sensor 2';
+      depthValue.textContent = '{{ sensor2 }} cm'; // Replace with actual value
+    } else {
+      // Sensor 1
+      sensorLabel.textContent = 'Sensor 1';
+      depthValue.textContent = '{{ sensor1 }} cm'; // Replace with actual value
+    }
+  }
+
+
+  </script>
+
+
+</body>
+</html>
